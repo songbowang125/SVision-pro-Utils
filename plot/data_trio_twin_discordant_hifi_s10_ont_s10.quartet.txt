@@ -1,0 +1,9 @@
+data	ratio	merge	tool	tech
+ChineseQuartet	0.007257618	SVision-pro	SVision-pro	HiFi
+ChineseQuartet	0.042979003	Sniffles2	Sniffles2	HiFi
+ChineseQuartet	0.066689072	SVision-SURVIVOR	SVision	HiFi
+ChineseQuartet	0.084997259	SVision-Jasmine	SVision	HiFi
+ChineseQuartet	0.059050325	cuteSV-SURVIVOR	cuteSV	HiFi
+ChineseQuartet	0.076366436	cuteSV-Jasmine	cuteSV	HiFi
+ChineseQuartet	0.08692053	debreak-SURVIVOR	debreak	HiFi
+ChineseQuartet	0.092397887	debreak-Jasmine	debreak	HiFi

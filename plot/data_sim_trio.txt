@@ -1,0 +1,7 @@
+data	ratio	merge	tool	tech
+Simulated	0.966690804	None	SVision-pro	HiFi
+Simulated	0.532340116	Jasmine	SVision	HiFi
+Simulated	0.540864511	SURVIVOR	SVision	HiFi
+Simulated	0.933986217	None	SVision-pro	ONT
+Simulated	0.335692996	Jasmine	SVision	ONT
+Simulated	0.332960894	SURVIVOR	SVision	ONT
