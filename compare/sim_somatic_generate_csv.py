@@ -114,7 +114,7 @@ def split_sim_benchmark_to_visor_bed(input_file, ref_file):
                         fout.write("{}\t{}\t{}\t{}\t{}\t{}\t2\n".format(id, chrom, sv_bkps_str[i][1], sv_bkps_str[i][2], sv_bkps_str[i][0], more))
 
 
-def load_from_split_bed(split_bed_file, out_path):
+def load_from_split_bed(split_bed_file, out_path, candidate_ids=None, candidate_ids_vafs=None):
 
     csv_list = []
 
@@ -131,10 +131,18 @@ def load_from_split_bed(split_bed_file, out_path):
 
         current_csv_id = line_split[0]
 
+        if candidate_ids is not None and int(current_csv_id) not in candidate_ids:
+            continue
+
         if current_csv_id != previous_csv_id:
 
             if previous_csv_id != -1:
-                csv_list.append(CSV(previous_csv_id, included_SSVs))
+                csv = CSV(previous_csv_id, included_SSVs)
+
+                if candidate_ids_vafs is not None:
+                    csv.vaf = candidate_ids_vafs[candidate_ids.index(int(previous_csv_id))]
+
+                csv_list.append(csv)
 
             previous_csv_id = current_csv_id
             included_SSVs = []
@@ -281,11 +289,167 @@ def surgone_raw_bam(csv_list, raw_bam_path, output_path, ref_file, raw_bam_cover
             print(csv.id, csv.vaf, len(csv_altered_reads))
 
 
-        for chrom in all_altered_read_names:
-            print(chrom)
-            for align in raw_bam_file.fetch(chrom):
-                if align.qname not in all_altered_read_names[chrom]:
-                    out_bam_file.write(align)
+        # for chrom in all_altered_read_names:
+        #     print(chrom)
+        #     for align in raw_bam_file.fetch(chrom):
+        #         if align.qname not in all_altered_read_names[chrom]:
+        #             out_bam_file.write(align)
+
+
+
+
+def down_sample_to_100(all_csv_list_path, output_path):
+
+    # # STEP: load all sv list file
+    line_num = 0
+
+    all_sv_collect = {}
+
+    all_sv_list_file = open(all_csv_list_path)
+
+    for line in all_sv_list_file:
+
+        line_split = line.strip().split("\t")
+
+        line_vaf = line_split[-1]
+
+        if line_vaf not in all_sv_collect:
+            all_sv_collect[line_vaf] = []
+
+        all_sv_collect[line_vaf].append(line_num)
+
+        line_num += 1
+
+    all_sv_list_file.close()
+
+    # # down sample
+    import random
+
+    left_lines = []
+    left_ids = []
+    left_ids_vafs = []
+
+    for vaf in all_sv_collect:
+        left_lines.extend(random.sample(all_sv_collect[vaf], 100))
+    # for vaf in all_sv_collect:
+    #
+    #     vaf_cnt = 0
+    #     while vaf_cnt < 100:
+    #
+    #         try_time = 0
+    #         while try_time < 1000:
+    #             try_time += 1
+    #             random_line = random.sample(all_sv_collect[vaf], 1)[0]
+    #
+    #             if random_line in left_lines:
+    #                 continue
+    #
+    #             if random_line - 2 not in left_lines and random_line - 1 not in left_lines and random_line + 1 not in left_lines and random_line + 2 not in left_lines:
+    #                 break
+    #
+    #         left_lines.append(random_line)
+    #         vaf_cnt += 1
+    #
+    #     print(vaf)
+
+    # # output after down sample
+    output_file =open(os.path.join(output_path, "csv_list_100.txt"), "w")
+
+    line_num = 0
+
+    all_sv_list_file = open(all_csv_list_path)
+
+    for line in all_sv_list_file:
+        if line_num in left_lines:
+            left_ids.append(int(line.split("\t")[0]))
+            left_ids_vafs.append(float(line.split("\t")[-1]))
+            output_file.write(line)
+
+        line_num += 1
+
+    all_sv_list_file.close()
+    output_file.close()
+
+
+    return left_ids, left_ids_vafs
+
+
+def split_bam(bam_path):
+
+
+    bam_file = pysam.AlignmentFile(bam_path)
+
+    unchange_bam_out = pysam.AlignmentFile(bam_path + ".unchanged.bam", "wb", header=bam_file.header)
+
+    changed_bam_out = pysam.AlignmentFile(bam_path + ".changed.bam", "wb", header=bam_file.header)
+
+    for align in bam_file:
+
+        try:
+            tag = align.get_tag("RG")
+            unchange_bam_out.write(align)
+
+        except:
+
+            changed_bam_out.write(align)
+
+
+def downsample_changed_bam(csv_list_path, changed_bam_path):
+
+    cmd_str = "samtools view -b -h -@ 20 {} ".format(changed_bam_path)
+
+    for line in open(csv_list_path):
+
+        line_split = line.strip().split("\t")
+        region = "{}:{}-{} ".format(line_split[1], int(line_split[2]) - 1000, int(line_split[3]) + 1000)
+
+        cmd_str += region
+
+    cmd_str += " > changed_reads.bam"
+    print(cmd_str)
+
+
+def find_high_confident(tp_base, all_csv_file):
+
+    for record in pysam.VariantFile(tp_base):
+
+        record_start = record.start + 1
+        record_end = record.stop
+        # print(record_start, record_end)
+
+        with open(all_csv_file) as fin:
+
+            for line in fin:
+                if str(record_start) in line or str(record_end) in line:
+                    print(line, end="")
+
+def remove_close(all_csv_file):
+
+    csv_list = []
+
+    line_num = 1
+    for line in open(all_csv_file):
+        line_split = line.strip().split("\t")
+
+        csv_list.append([line_num, int(line_split[2]), int(line_split[3])])
+
+        line_num += 1
+
+    removed_lines = []
+    for i in range(1, len(csv_list) - 1):
+
+        if abs(csv_list[i][1] - csv_list[i - 1][2]) <= 100000 or abs(csv_list[i + 1][1] - csv_list[i][2]) <= 100000:
+            removed_lines.append(csv_list[i][0])
+
+    # print(len(removed_lines))
+
+    line_num = 1
+    for line in open(all_csv_file):
+        if line_num not in removed_lines:
+            print(line, end="")
+
+        line_num += 1
+
 
 if __name__ == '__main__':
 
@@ -295,17 +459,45 @@ if __name__ == '__main__':
     #
     # split_bed_file = "/mnt/c/workspace/test/sim_somatic_ccs/complex_bamsurgeon/benchmark_origin_clone0_300.csv.split.bed"
 
+    # ref_file = pysam.FastaFile("/data/home/songbo/workspace/ref/chr1-X.fa")
+    # split_bed_file = "/data/home/songbo/workspace/svision-pro/sim_somatic_ccs/complex_bamsurgeon/benchmark_origin_clone0_300.csv.split.bed"
+    #
+    # raw_bam_path = "/data/home/songbo/workspace/svision-pro/sim_somatic_ccs/complex/simulated.100x.srt.bam"
+    #
+    # output_path = "/data/home/songbo/workspace/svision-pro/sim_somatic_ccs/complex_bamsurgeon"
+    #
+    # csv_list = load_from_split_bed(split_bed_file, output_path)
+    #
+    # print(len(csv_list))
+    #
+    # surgone_raw_bam(csv_list, raw_bam_path, output_path, ref_file)
 
-    ref_file = pysam.FastaFile("/data/home/songbo/workspace/ref/chr1-X.fa")
-    split_bed_file = "/data/home/songbo/workspace/svision-pro/sim_somatic_ccs/complex_bamsurgeon/benchmark_origin_clone0_300.csv.split.bed"
+    # split_sim_benchmark_to_visor_bed("compare/data_benchmark_origin_clone0_300.csv.bed", "/mnt/h/data/ref/grch38/GRCh38.d1.vd1.fa")
 
-    raw_bam_path = "/data/home/songbo/workspace/svision-pro/sim_somatic_ccs/complex/simulated.100x.srt.bam"
+    # # down sample plan A
+    # raw_bam_path = "/data/home/songbo/workspace/svision-pro/sim_somatic_ont/complex/simulated.100x.srt.bam"
+    #
+    # ref_file = pysam.FastaFile("/data/DATA/Reference/human/GRCh38.d1.vd1/genome/GRCh38.d1.vd1.fa")
+    #
+    # split_bed_file = "/data/home/songbo/workspace/svision-pro/sim_somatic_ont/complex/data_benchmark_origin_clone0_300.csv.split.bed"
+    #
+    # all_sv_list_path = "/data/home/songbo/workspace/svision-pro/sim_somatic_ont/complex/csv_list.high_conf.noclose.txt"
+    #
+    # output_path = "/data/home/songbo/workspace/svision-pro/sim_somatic_ont/complex_100"
+    #
+    # candidate_ids, candidate_ids_vafs = down_sample_to_100(all_sv_list_path, output_path)
+    # #
+    # csv_list = load_from_split_bed(split_bed_file, output_path, candidate_ids, candidate_ids_vafs)
+    #
+    # print(len(csv_list))
+    #
+    # surgone_raw_bam(csv_list, raw_bam_path, output_path, ref_file)
 
-    output_path = "/data/home/songbo/workspace/svision-pro/sim_somatic_ccs/complex_bamsurgeon"
 
+    # split_bam("/data/home/songbo/workspace/svision-pro/sim_somatic_ont/complex/merged.srt.bam")
 
-    csv_list = load_from_split_bed(split_bed_file, output_path)
+    downsample_changed_bam("/mnt/d/workspace/svision-pro/sim_somatic_ccs/complex_100/csv_list.txt", "/data/home/songbo/workspace/svision-pro/sim_somatic_ccs/complex/changed_reads.srt.bam")
 
-    print(len(csv_list))
-
-    surgone_raw_bam(csv_list, raw_bam_path, output_path, ref_file)
+    # find_high_confident("/mnt/d/workspace/svision-pro/sim_somatic_ccs/complex/release_1024.svision_pro_v1.6.s1_bench_type/tp-base.vcf", "/mnt/d/workspace/svision-pro/sim_somatic_ccs/complex/benchmark_origin_clone0_300.csv.addVAF.txt")
+    #
+    # remove_close("/mnt/d/workspace/svision-pro/sim_somatic_ccs/complex/benchmark_origin_clone0_300.csv.addVAF.txt")

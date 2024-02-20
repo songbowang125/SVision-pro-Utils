@@ -49,12 +49,12 @@ def compare(vcf_file, tool_out_path, compare_type):
 
 class real_ssv_params:
     def __init__(self):
-        self.work_path = '/mnt/c/workspace/test_new/real_ccs'
-        self.ref = '/mnt/d/data/ref/grch37/hs37d5.fa'
-        self.base_gz = '/mnt/c/workspace/test_new/real_ccs/ground_truth/HG002_SVs_Tier1_v0.6.vcf.gz'
+        self.work_path = '/mnt/d/workspace/svision-pro/real_ont'
+        self.ref = '/mnt/f/ref/grch37/hs37d5.fa'
+        self.base_gz = '/mnt/d/workspace/svision-pro//real_ccs/ground_truth/HG002_SVs_Tier1_v0.6.vcf.gz'
         # self.base_gz = '/mnt/c/workspace/test_new/sim_csv_ccs/ground_truth/extended/benchmark_origin_clone0_300.csv.vcf.gz'
 
-        self.base_bed = '/mnt/c/workspace/test_new/real_ccs/ground_truth/HG002_SVs_Tier1_v0.6.bed'
+        self.base_bed = '/mnt/d/workspace/svision-pro//real_ccs/ground_truth/HG002_SVs_Tier1_v0.6.bed'
         self.pass_only = True
         self.type = "region"
 
@@ -130,44 +130,62 @@ class real_colo829:
 
 class sim_somatic_complex:
     def __init__(self):
-        self.work_path = '/mnt/c/workspace/test_new/sim_somatic_ccs/complex'
-        self.ref = "/mnt/d/data/ref/grch38/GRCh38.d1.vd1.fa"
-        self.base_gz = '/mnt/c/workspace/test_new/sim_somatic_ccs/complex/benchmark_origin_clone0_300.csv.addVAF.vcf.gz'
+        self.work_path = '/mnt/d/workspace/svision-pro/sim_somatic_ccs/complex'
+        self.ref = "/mnt/h/data/ref/grch38/GRCh38.d1.vd1.fa"
+        self.base_gz = '/mnt/d/workspace/svision-pro/sim_somatic_ccs/complex/benchmark_origin_clone0_300.csv.addVAF.vcf.gz'
 
         self.base_bed = None
         self.pass_only = False
 
         self.type = "region"
 
-        self.tools = [ "release_1024.svision_pro_v1.6.s1",  "release_512.svision_pro_v1.6.s1",  "release_256.svision_pro_v1.6.s1"]
-        # self.tools = [ "release_1024.svision_pro_v1.6.s1"]
+        # self.tools = [ "release_1024.svision_pro_v1.6.s1",  "release_512.svision_pro_v1.6.s1",  "release_256.svision_pro_v1.6.s1"]
+        # self.tools = [ "release.svision_pro_v1.7.s1.vcf.somatic.s1"]
+        self.tools = [ "release_1024.svision_pro_v1.7.s1.vcf.somatic.s1"]
 
 
 class sim_somatic_simple:
     def __init__(self):
-        self.work_path = '/mnt/c/workspace/test_new/sim_somatic_ccs/simple/'
-        self.ref = '/mnt/d/data/ref/grch37/hs37d5.fa'
+        self.work_path = '/mnt/d/workspace/svision-pro/sim_somatic_ont/simple/'
+        self.ref = '/mnt/h/data/ref/grch37/hs37d5.fa'
 
-        self.base_gz = '/mnt/c/workspace/test_new/sim_somatic_ccs/simple/HG002_SVs_Tier1_v0.6_high_confident.addVAF.vcf.gz'
+        self.base_gz = '/mnt/d/workspace/svision-pro/sim_somatic_ont/simple/HG002_SVs_Tier1_v0.6_high_confident.addVAF.vcf.gz'
 
         self.base_bed = None
         self.pass_only = False
 
         self.type = "region"
 
-        self.tools = [ "release_1024.svision_pro_v1.6.s1",  "release_512.svision_pro_v1.6.s1",  "release_256.svision_pro_v1.6.s1"]
-        # self.tools = [ "release_1024.svision_pro_v1.6.s1"]
+        # self.tools = [ "nanomonsv.s1.80x.vcf.somatic.s1", "nanomonsv.s1.50x.vcf.somatic.s1", "nanomonsv.s1.30x.vcf.somatic.s1", "nanomonsv.s1.20x.vcf.somatic.s1", "nanomonsv.s1.10x.vcf.somatic.s1"]
+        # self.tools = ["nanomonsv.s1.vcf.somatic.s1"]
 
         # self.tools = ["sniffles2.non-germline.s1", "nanomonsv.s1"]
-        # self.tools = ["nanomonsv.s1"]
+        self.tools = ["nanomonsv.s1.vcf.somatic.s1", "release_1024.svision_pro_v1.7.s1.vcf.somatic.s1", "sniffles2.merge.s1.vcf.somatic.s1"]
 
 
 class real_hcc1395:
     def __init__(self):
-        self.work_path = '/mnt/c/workspace/test_new/real_nt_hcc1395'
-        self.ref = "/mnt/d/data/ref/grch38/GRCh38.d1.vd1.fa"
-        self.base_gz = '/mnt/c/workspace/test_new/real_nt_hcc1395/GB_1788_SVs.vcf.gz'
+        self.work_path = '/mnt/d/workspace/svision-pro/paper_revision/real_nt_hcc1395/hifi'
+        self.ref = "/mnt/f/ref/grch38/GRCh38.d1.vd1.fa"
+        self.base_gz = '/mnt/d/workspace/svision-pro/paper_revision/real_nt_hcc1395/GB_1788_SVs.vcf.gz'
 
+        self.base_bed = None
+        self.pass_only = False
+
+        self.type = "region"
+
+        # self.tools = ["release_withbed.svision_pro_v1.7.s2.vcf.s3", "release_withbed.svision_pro_v1.7.s2.vcf.s5", "release_withbed.svision_pro_v1.7.s2.vcf.s8", "release_withbed.svision_pro_v1.7.s2.vcf.s10", "release_withbed.svision_pro_v1.7.s2.vcf.s15", "release_withbed.svision_pro_v1.7.s2.vcf.s20", "sniffles2.merge.s2.vcf.s3", "sniffles2.merge.s2.vcf.s5", "sniffles2.merge.s2.vcf.s8", "sniffles2.merge.s2.vcf.s10", "sniffles2.merge.s2.vcf.s15", "sniffles2.merge.s2.vcf.s20"]
+        # self.tools = ["sniffles2.merge.s2", "sniffles2.merge.s2.vcf.s3", "sniffles2.merge.s2.vcf.s5", "sniffles2.merge.s2.vcf.s8", "sniffles2.merge.s2.vcf.s10", "sniffles2.merge.s2.vcf.s15", "sniffles2.merge.s2.vcf.s20"]
+        # self.tools = ["release.svision_pro_v1.7.s2", "release.svision_pro_v1.7.s2.vcf.s3", "release.svision_pro_v1.7.s2.vcf.s5", "release.svision_pro_v1.7.s2.vcf.s8", "release.svision_pro_v1.7.s2.vcf.s10", "release.svision_pro_v1.7.s2.vcf.s15", "release.svision_pro_v1.7.s2.vcf.s20"]
+
+        # self.tools = ["release.svision_pro_v1.6.s2"]
+        self.tools = ["release_withbed.svision_pro_v1.7.s1"]
+
+class real_colo829:
+    def __init__(self):
+        self.work_path = '/mnt/d/workspace/svision-pro/paper_revision/real_nt_colo829'
+        self.ref = "/mnt/f/ref/grch38/GRCh38.d1.vd1.fa"
+        self.base_gz = '/mnt/d/workspace/svision-pro/paper_revision/real_nt_colo829/benchmark/truthset_somaticSVs_COLO829_hg38lifted.regroup.vcf.gz'
         self.base_bed = None
         self.pass_only = False
 
@@ -175,7 +193,7 @@ class real_hcc1395:
 
         # self.tools = ["release.svision_pro_v1.6.s2"]
         # self.tools = ["sniffles.non_germline.s2"]
-        self.tools = ["nanomonsv.s2"]
+        self.tools = ["sniffles2.non-germline.s1", "release_1024.svision_pro_v1.6.s2"]
 
 if __name__ == '__main__':
 

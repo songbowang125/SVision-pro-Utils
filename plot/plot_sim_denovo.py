@@ -59,9 +59,12 @@ import random
 def plot_sim_denovo_accuracy(data_file):
     data_frame = pd.read_table(data_file)
 
+    # data_frame = data_frame[data_frame["tech"] == "ONT"]
+
     fig = pl.figure(figsize=(2, 5))
     ax = fig.add_subplot(1, 1, 1)
-    ax.grid(b=True, color='grey', linestyle='-.', linewidth=0.5, alpha=0.2)
+    # ax.grid(b=True, color='grey', linestyle='-.', linewidth=0.5, alpha=0.2)
+    ax.grid( color='grey', linestyle='-.', linewidth=0.5, alpha=0.2)
 
     # sns.boxplot(data=data_frame, x="tool", y="ratio", hue="tech",   whis=0, capprops={'color': 'none'}, medianprops={'color': 'none'}, boxprops={'facecolor': '#FFFFFF', 'edgecolor': 'none'}, whiskerprops={'color': 'none'}, showfliers=False)
     # sns.boxplot(data=data_frame, x="tool", y="ratio", hue="tech",whiskerprops={'color': 'none'}  )
@@ -71,8 +74,8 @@ def plot_sim_denovo_accuracy(data_file):
     for s in ['left', 'right']:
         ax.spines[s].set_visible(False)
 
-    # ax.set_ylim([0.0, 0.12])  # xmin, xmax, ymin, ymax
-    # ax.set_yticks(np.linspace(0.0, 0.12, 3))
+    ax.set_ylim([0.3, 1.0])  # xmin, xmax, ymin, ymax
+    ax.set_yticks(np.linspace(0.3, 1.0, 5))
     ax.set_xticklabels(["SVision-pro", "SVision"], fontsize=16, rotation=340)
 
     plt.xlabel("")
@@ -81,6 +84,7 @@ def plot_sim_denovo_accuracy(data_file):
     plt.legend([],[], frameon=False)
 
     plt.savefig("out_sim_denovo.png", dpi=1500,bbox_inches='tight')
+    plt.savefig("out_sim_denovo.svg", dpi=1500,bbox_inches='tight')
 
 
 if __name__ == '__main__':

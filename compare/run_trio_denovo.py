@@ -166,44 +166,46 @@ def convert_svision_pro_to_merged_bed(input_path):
 if __name__ == '__main__':
     # convert_svision_pro_to_merged_bed()
 
-    # trios = ["hg002-3-4", "hg005-6-7", "na19240-38-39", "hg00514-2-3", "hg00733-1-2", "lcl5-6-7-8"]
-    trios = ["hg002-3-4_ONT", "hg005-6-7_ONT", "lcl5-6-7-8_ONT"]
     #
+    trios = ["hg002-3-4", "hg005-6-7", "na19240-38-39", "hg00514-2-3", "hg00733-1-2", "lcl5-6-7-8"]
+
+    # trios = ["hg002-3-4_ONT", "hg005-6-7_ONT", "lcl5-6-7-8_ONT"]
+    # #
     print("------------SVision-pro")
-    # convert_svision_pro_to_merged_bed("/mnt/c/workspace/test_new/real_trio/")
+    # # convert_svision_pro_to_merged_bed("/mnt/c/workspace/test_new/real_trio/")
     #
     for trio in trios:
-        fetch_denovo_sv("/mnt/c/workspace/test_new/real_trio/ont/release_{}_256.svision_pro_v1.6.s10.vcf".format(trio), tool="svision-pro")
+        fetch_denovo_sv("/mnt/d/workspace/svision-pro/real_trio/release_{}_256.svision_pro_v1.7.s10.vcf".format(trio), tool="svision-pro")
 
-    print("------------sniffles2")
-    for trio in trios:
-        fetch_denovo_sv("/mnt/c/workspace/test_new/real_trio/ont/sniffles2.{}.s10.vcf".format(trio), tool="sniffles2")
+    # print("------------sniffles2")
+    # for trio in trios:
+    #     fetch_denovo_sv("/mnt/d/workspace/svision-pro/real_trio/supp10_supp2/sniffles2.{}.s10.vcf".format(trio), tool="sniffles2")
 
-    print("------------svision_jasmine")
-    for trio in trios:
-        fetch_denovo_sv("/mnt/c/workspace/test_new/real_trio/ont/svision_jasmine.{}.s10.vcf".format(trio), tool="merge")
+    # print("------------svision_jasmine")
+    # for trio in trios:
+    #     fetch_denovo_sv("/mnt/d/workspace/svision-pro/real_trio/supp10_supp2/svision_jasmine.{}.s10.s2.vcf".format(trio), tool="merge")
+    # #
+    # print("------------svision_survivor")
+    # for trio in trios:
+    #     fetch_denovo_sv("/mnt/d/workspace/svision-pro/real_trio/supp10_supp2/svision_survivor.{}.s10.s2.vcf".format(trio), tool="merge")
     #
-    print("------------svision_survivor")
-    for trio in trios:
-        fetch_denovo_sv("/mnt/c/workspace/test_new/real_trio/ont/svision_survivor.{}.s10.vcf".format(trio), tool="merge")
-
-    print("------------cutesv_jasmine")
-    for trio in trios:
-        fetch_denovo_sv("/mnt/c/workspace/test_new/real_trio/ont/cutesv_jasmine.{}.s10.vcf".format(trio), tool="merge")
-
-    print("------------cutesv_survivor")
-    for trio in trios:
-        fetch_denovo_sv("/mnt/c/workspace/test_new/real_trio/ont/cutesv_survivor.{}.s10.vcf".format(trio), tool="merge")
-
-    print("------------debreak_jasmine")
-    for trio in trios:
-        fetch_denovo_sv("/mnt/c/workspace/test_new/real_trio/ont/debreak_jasmine.{}.s10.vcf".format(trio), tool="merge")
-
-    print("------------debreak_survivor")
-    for trio in trios:
-        fetch_denovo_sv("/mnt/c/workspace/test_new/real_trio/ont/debreak_survivor.{}.s10.vcf".format(trio), tool="merge")
+    # print("------------cutesv_jasmine")
+    # for trio in trios:
+    #     fetch_denovo_sv("/mnt/d/workspace/svision-pro/real_trio/supp10_supp2/cutesv_jasmine.{}.s10.s2.vcf".format(trio), tool="merge")
     #
-    collect_and_summary_denovo("/mnt/c/workspace/test_new/real_trio/ont/trio_denovo/")
+    # print("------------cutesv_survivor")
+    # for trio in trios:
+    #     fetch_denovo_sv("/mnt/d/workspace/svision-pro/real_trio/supp10_supp2/cutesv_survivor.{}.s10.s2.vcf".format(trio), tool="merge")
+    #
+    # print("------------debreak_jasmine")
+    # for trio in trios:
+    #     fetch_denovo_sv("/mnt/d/workspace/svision-pro/real_trio/supp10_supp2/debreak_jasmine.{}.s10.s2.vcf".format(trio), tool="merge")
+    #
+    # print("------------debreak_survivor")
+    # for trio in trios:
+    #     fetch_denovo_sv("/mnt/d/workspace/svision-pro/real_trio/supp10_supp2/debreak_survivor.{}.s10.s2.vcf".format(trio), tool="merge")
+    # # #
+    # collect_and_summary_denovo("/mnt/d/workspace/svision-pro/real_trio/supp10_supp2/trio_denovo/")
 
 
     # fetch_bam("/data/home/songbo/workspace/svision-pro/real_trio/sv_call_release/denovo_bams/collection.svision_pro.sniffles2.denovo.bed", "/data/home/songbo/workspace/svision-pro/real_trio/sv_call_release/denovo_bams")

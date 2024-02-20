@@ -15,8 +15,8 @@ def add_af_to_somatic_benmark_vcf(benchmark_vcf, out_vcf, somatic_log):
         record_stop = record.stop
         record_svtype = record.info["SVTYPE"]
 
-        search_info = "{}_{}".format(record_chrom, record_start)
-        # search_info = "{}_{}".format(record_chrom, record_stop)
+        search_info = "{}_{}".format(record_chrom, record_start)      # # for SSV
+        # search_info = "{}_{}".format(record_chrom, record_stop)     # # for CSV
 
         found_flag = False
         # # search in log file
@@ -24,8 +24,8 @@ def add_af_to_somatic_benmark_vcf(benchmark_vcf, out_vcf, somatic_log):
 
             line_split = line.strip().split("\t")
 
-            target_info = "{}_{}".format(line_split[1], line_split[2])
-            # target_info = "{}_{}".format(line_split[1], line_split[3])
+            target_info = "{}_{}".format(line_split[1], line_split[2])    # # for SSV
+            # target_info = "{}_{}".format(line_split[1], line_split[3])  # # for CSV
 
             if search_info == target_info:
 
@@ -85,7 +85,11 @@ def evaluation_somatic_concordance_from_truvari_res_nanomonsv(truvari_res_folder
     for record in pysam.VariantFile(os.path.join(truvari_res_folder, "tp-call.vcf")):
         called_af = int(str(record).split("\t")[-2].split(":")[-2]) /  int(str(record).split("\t")[-2].split(":")[-1])
 
+        # if "NA" in str(record).split("\t")[-1].split(":")[-1]:
+        #     normal_reads = 0
+        # else:
         normal_reads = int(str(record).split("\t")[-1].split(":")[-1])
+
         if normal_reads == 0:
             event_infos[i][2] = called_af
         else:
@@ -106,9 +110,9 @@ def evaluation_somatic_concordance_from_truvari_res_nanomonsv(truvari_res_folder
 
     for af in af_set:
         af = str(af)
-        print(total_events[af])
-        print(accurate_events[af])
-        print(inaccurate_events[af] + notcalled_events[af])
+        # print(total_events[af])
+        # print(accurate_events[af])
+        # print(inaccurate_events[af] + notcalled_events[af])
         print(round(accurate_events[af] / total_events[af], 3))
 
 
@@ -151,7 +155,11 @@ def evaluation_somatic_concordance_from_truvari_res_sniffles2(truvari_res_folder
 
     i = 0
     for record in pysam.VariantFile(os.path.join(truvari_res_folder, "tp-call.vcf")):
-        called_af = record.info["AF"]
+
+        try:
+            called_af = record.info["AF"]
+        except:
+            called_af = 0
 
         event_infos[i][2] = called_af
 
@@ -167,9 +175,9 @@ def evaluation_somatic_concordance_from_truvari_res_sniffles2(truvari_res_folder
 
     for af in af_set:
         af = str(af)
-        print(total_events[af])
-        print(accurate_events[af])
-        print(inaccurate_events[af] + notcalled_events[af])
+        # print(total_events[af])
+        # print(accurate_events[af])
+        # print(inaccurate_events[af] + notcalled_events[af])
         print(round(accurate_events[af] / total_events[af], 3))
 
 
@@ -252,19 +260,25 @@ def evaluation_somatic_concordance_from_truvari_res_svision_pro(truvari_res_fold
     #     print(vaf)
     for af in af_set:
         af = str(af)
-        print(total_events[af])
-        print(accurate_events[af])
-        print(inaccurate_events[af] + notcalled_events[af])
+        # print(total_events[af])
+        # print(accurate_events[af])
+        # print(inaccurate_events[af] + notcalled_events[af])
         print(round(accurate_events[af] / total_events[af], 3))
         # print(round(accurate_events[af] / (accurate_events[af] + inaccurate_events[af]), 3))
 
 
 if __name__ == '__main__':
-    # add_af_to_somatic_benmark_vcf("/mnt/c/workspace/test_new/sim_somatic_ccs/simple_manual/HG002_SVs_Tier1_v0.6_high_confident.vcf", "/mnt/c/workspace/test_new/sim_somatic_ccs/simple_manual/HG002_SVs_Tier1_v0.6_high_confident.addVAF.vcf", "/mnt/c/workspace/test_new/sim_somatic_ccs/simple_manual/HG002_SVs_Tier1_v0.6_high_confident.txt")
+    # add_af_to_somatic_benmark_vcf("/mnt/d/workspace/svision-pro/sim_somatic_ccs/complex/benchmark_origin_clone0_300.csv.vcf", "/mnt/d/workspace/svision-pro/sim_somatic_ccs/complex_100/benchmark_origin_clone0_300.csv.addVAF.vcf", "/mnt/d/workspace/svision-pro/sim_somatic_ccs/complex_100/csv_list.txt")
+    # add_af_to_somatic_benmark_vcf("/mnt/d/workspace/svision-pro/sim_somatic_ccs/simple/HG002_SVs_Tier1_v0.6_high_confident.vcf", "/mnt/d/workspace/svision-pro/sim_somatic_ccs/simple_100_30x/HG002_SVs_Tier1_v0.6_high_confident.addVAF.vcf", "/mnt/d/workspace/svision-pro/sim_somatic_ccs/simple_100_30x/csv_list.txt")
 
+    print("svision-pro")
+    evaluation_somatic_concordance_from_truvari_res_svision_pro("/mnt/d/workspace/svision-pro/sim_somatic_ccs/complex/release_1024.svision_pro_v1.7.s1.vcf.somatic.s1_bench_region")
+    print("---")
+    evaluation_somatic_concordance_from_truvari_res_svision_pro("/mnt/d/workspace/svision-pro/sim_somatic_ont/complex/release_1024.svision_pro_v1.7.s1.vcf.somatic.s1_bench_region")
 
-    evaluation_somatic_concordance_from_truvari_res_svision_pro("/mnt/c/workspace/test_new/sim_somatic_ont/simple/release_256.svision_pro_v1.5.s1_bench_region")
+    print("sniffles2")
+    # evaluation_somatic_concordance_from_truvari_res_sniffles2("/mnt/d/workspace/svision-pro/sim_somatic_ont/simple/sniffles2.merge.s1.vcf.somatic.s1_bench_region")
 
-    evaluation_somatic_concordance_from_truvari_res_sniffles2("/mnt/c/workspace/test_new/sim_somatic_ont/simple/sniffles2.non-germline.s1_bench_region")
-    evaluation_somatic_concordance_from_truvari_res_nanomonsv("/mnt/c/workspace/test_new/sim_somatic_ont/simple/nanomonsv.s1_bench_region")
+    print("nanomonsv")
+    # evaluation_somatic_concordance_from_truvari_res_nanomonsv("/mnt/d/workspace/svision-pro/sim_somatic_ont/simple/nanomonsv.s1.vcf.somatic.s1_bench_region")
 

@@ -48,12 +48,16 @@ class READ:
         self.read_name = read_name
 
 
-def load_from_split_bed(split_bed_file, out_path):
-
+def load_from_split_bed(split_bed_file, out_path, candidate_ids=None, candidate_ids_vafs=None):
+    print(candidate_ids)
     csv_list = []
     id = 0
     for line in open(split_bed_file):
         id += 1
+
+        if candidate_ids is not None and id not in candidate_ids:
+            continue
+
         line_split = line.strip().split("\t")
 
         ssv_ref_chrom = line_split[0]
@@ -63,7 +67,14 @@ def load_from_split_bed(split_bed_file, out_path):
 
         ssv_info = line_split[4]
 
-        csv_list.append(CSV(id, [SSV(ssv_ref_chrom, ssv_ref_start, ssv_ref_end, ssv_type, ssv_info)]))
+        csv = CSV(id, [SSV(ssv_ref_chrom, ssv_ref_start, ssv_ref_end, ssv_type, ssv_info)])
+
+        if candidate_ids_vafs is not None:
+            csv.vaf = candidate_ids_vafs[candidate_ids.index(id)]
+
+        csv_list.append(csv)
+
+        print(candidate_ids_vafs[candidate_ids.index(id)], csv.vaf)
 
     with open(os.path.join(out_path, "csv_list.txt"), "w") as fout:
         for csv in csv_list:
@@ -202,19 +213,137 @@ def surgone_raw_bam(csv_list, raw_bam_path, output_path, ref_file, raw_bam_cover
                 if align.qname not in all_altered_read_names[chrom]:
                     out_bam_file.write(align)
 
+
+def down_sample_to_100(all_sv_list_path, output_path):
+
+    # # STEP: load all sv list file
+    line_num = 0
+
+    all_sv_collect = {}
+
+    all_sv_list_file = open(all_sv_list_path)
+
+    for line in all_sv_list_file:
+
+        line_split = line.strip().split("\t")
+
+        line_vaf = line_split[-1]
+
+        if line_vaf not in all_sv_collect:
+            all_sv_collect[line_vaf] = []
+
+        all_sv_collect[line_vaf].append(line_num)
+
+        line_num += 1
+
+    all_sv_list_file.close()
+
+    # # down sample
+    import random
+
+    left_lines = []
+    left_ids = []
+    left_ids_vafs = []
+
+    for vaf in all_sv_collect:
+        left_lines.extend(random.sample(all_sv_collect[vaf], 100))
+
+    # # output after down sample
+    output_file =open(os.path.join(output_path, "sv_list_100.txt"), "w")
+
+    line_num = 0
+
+    all_sv_list_file = open(all_sv_list_path)
+
+    for line in all_sv_list_file:
+        if line_num in left_lines:
+            left_ids.append(int(line.split("\t")[0]))
+            left_ids_vafs.append(float(line.split("\t")[-1]))
+            output_file.write(line)
+
+        line_num += 1
+
+    all_sv_list_file.close()
+    output_file.close()
+
+
+    return left_ids, left_ids_vafs
+
+
+
+def load_from_down_100(sv_list_100_path):
+    candidate_ids = []
+    candidate_ids_vafs = []
+
+    for line in open(sv_list_100_path):
+        line_split = line.strip().split("\t")
+
+        candidate_ids.append(int(line_split[0]))
+
+        candidate_ids_vafs.append(float(line_split[-1]))
+
+    return candidate_ids, candidate_ids_vafs
+
 if __name__ == '__main__':
 
+    #
+    # ref_file = pysam.FastaFile("/data/home/songbo/workspace/ref/hs37d5.1-Y.fa")
+    # split_bed_file = "/data/home/songbo/workspace/svision-pro/sim_somatic_ont/simple_bamsurgeon/data_HG002_SVs_Tier1_v0.6.final.bed"
+    #
+    # raw_bam_path = "/data/home/songbo/workspace/svision-pro/sim_somatic_ont/simple/simulated.100x.srt.bam"
+    #
+    # output_path = "/data/home/songbo/workspace/svision-pro/sim_somatic_ont/simple_bamsurgeon"
+    #
+    #
+    # csv_list = load_from_split_bed(split_bed_file, output_path)
+    #
+    # print(len(csv_list))
+    #
+    # surgone_raw_bam(csv_list, raw_bam_path, output_path, ref_file)
+
+    # # down to 100
+    # raw_bam_path = "/data/home/songbo/workspace/svision-pro/sim_somatic_ccs/simple_100_80x/simulated.80x.srt.bam"
+    #
+    # ref_file = pysam.FastaFile("/data/home/songbo/workspace/ref/hs37d5.1-Y.fa")
+    #
+    # split_bed_file = "/data/home/songbo/workspace/svision-pro/sim_somatic_ccs/simple/data_HG002_SVs_Tier1_v0.6.final.bed"
+    #
+    # output_path = "/data/home/songbo/workspace/svision-pro/sim_somatic_ccs/simple_100_80x"
+    #
+    # all_sv_list_path = "/data/home/songbo/workspace/svision-pro/sim_somatic_ccs/simple/sv_list.txt"
+    #
+    # candidate_ids, candidate_ids_vafs = down_sample_to_100(all_sv_list_path, output_path)
+    #
+    #
+    # csv_list = load_from_split_bed(split_bed_file, output_path, candidate_ids, candidate_ids_vafs)
+    #
+    # print(len(csv_list))
+    #
+    # surgone_raw_bam(csv_list, raw_bam_path, output_path, ref_file, raw_bam_coverage=80)
+
+
+    # # down to low coverage
+    raw_bam_coverage = 80
+
+    raw_bam_path = "/data/home/songbo/workspace/svision-pro/sim_somatic_ccs/simple_100_{}x/simulated.{}x.srt.bam".format(raw_bam_coverage, raw_bam_coverage)
+
+    output_path = "/data/home/songbo/workspace/svision-pro/sim_somatic_ccs/simple_100_{}x".format(raw_bam_coverage)
 
     ref_file = pysam.FastaFile("/data/home/songbo/workspace/ref/hs37d5.1-Y.fa")
-    split_bed_file = "/data/home/songbo/workspace/svision-pro/sim_somatic_ont/simple_bamsurgeon/data_HG002_SVs_Tier1_v0.6.final.bed"
 
-    raw_bam_path = "/data/home/songbo/workspace/svision-pro/sim_somatic_ont/simple/simulated.100x.srt.bam"
+    split_bed_file = "/data/home/songbo/workspace/svision-pro/sim_somatic_ccs/simple/data_HG002_SVs_Tier1_v0.6.final.bed"
 
-    output_path = "/data/home/songbo/workspace/svision-pro/sim_somatic_ont/simple_bamsurgeon"
+    sv_list_100_path = "/data/home/songbo/workspace/svision-pro/sim_somatic_ccs/simple_100/sv_list_100.txt"
 
+    candidate_ids, candidate_ids_vafs = load_from_down_100(sv_list_100_path)
 
-    csv_list = load_from_split_bed(split_bed_file, output_path)
+    csv_list = load_from_split_bed(split_bed_file, output_path, candidate_ids, candidate_ids_vafs)
 
-    print(len(csv_list))
+    surgone_raw_bam(csv_list, raw_bam_path, output_path, ref_file, raw_bam_coverage=raw_bam_coverage)
 
-    surgone_raw_bam(csv_list, raw_bam_path, output_path, ref_file)
+    os.system("cd {}".format(output_path))
+    os.system("minimap2 -a -t 20 --MD -Y -R \'@RG\\tID:unchanged\\tSM:unchanged\\tLB:unchanged\' -x map-pb /data/home/songbo/workspace/ref/hs37d5.1-Y.fa changed_reads.fastq > changed_reads.sam")
+    os.system("samtools sort -@ 20 -o changed_reads.srt.bam changed_reads.sam")
+    os.system("samtools index -@ 20  changed_reads.srt.bam")
+    os.system("samtools merge -@ 20 -o merged.srt.bam changed_reads.srt.bam unchanged_bam.bam")
+    os.system("samtools index -@ 20 merged.srt.bam")
